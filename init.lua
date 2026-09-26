@@ -84,8 +84,40 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
+-- For VSCode:
+if vim.g.vscode then
+  -- Avoid phantom cursor on delete
+  -- Workaround for vscode-neovim UI desync (issue #2117)
+  -- 1. Redraw on CursorHold (idle for some time)
+  local redraw_fix = vim.api.nvim_create_augroup('VSCodeRedrawFix', { clear = true })
+  vim.api.nvim_create_autocmd('CursorHold', {
+    group = redraw_fix,
+    callback = function()
+      vim.cmd 'silent! mode' -- triggers a lightweight redraw
+    end,
+  })
+
+  -- 2. Redraw immediately after text changes (e.g., visual delete)
+  local redraw_group = vim.api.nvim_create_augroup('RedrawOnDelete', { clear = true })
+  vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI' }, {
+    group = redraw_group,
+    callback = function()
+      if vim.fn.mode() == 'n' then
+        vim.cmd 'silent! mode' -- refresh UI after delete/insert
+      end
+    end,
+  })
+
+  -- undo/REDO via vscode
+  vim.keymap.set('n', 'u', "<Cmd>call VSCodeNotify('undo')<CR>")
+  vim.keymap.set('n', '<C-r>', "<Cmd>call VSCodeNotify('redo')<CR>")
+end
+
+-- End VSCode
+
 -- Set <space> as the leader key
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
+vim.keymap.set('', '<Space>', '<Nop>')
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
@@ -265,6 +297,7 @@ require('lazy').setup({
   -- See `:help gitsigns` to understand what the configuration keys do
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
+    cond = not vim.g.vscode,
     opts = {
       signs = {
         add = { text = '+' },
@@ -449,6 +482,7 @@ require('lazy').setup({
 
   { -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
+    cond = not vim.g.vscode,
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
@@ -899,6 +933,7 @@ require('lazy').setup({
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
+    cond = not vim.g.vscode,
     opts = {
       ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed

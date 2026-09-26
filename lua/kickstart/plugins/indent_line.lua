@@ -4,6 +4,7 @@ return {
     -- Enable `lukas-reineke/indent-blankline.nvim`
     -- See `:help ibl`
     main = 'ibl',
+    cond = not vim.g.vscode,
     opts = {
       indent = {
         char = { '│' },

@@ -1,10 +1,11 @@
 return {
-  { 'kchmck/vim-coffee-script' },
-  { 'slim-template/vim-slim' },
-  { 'slm-lang/vim-slm' },
+  { 'kchmck/vim-coffee-script', cond = not vim.g.vscode },
+  { 'slim-template/vim-slim', cond = not vim.g.vscode },
+  { 'slm-lang/vim-slm', cond = not vim.g.vscode },
   {
     'windwp/nvim-autopairs',
     event = 'InsertEnter',
+    cond = not vim.g.vscode,
     -- Optional dependency
     dependencies = { 'hrsh7th/nvim-cmp' },
     config = function()
@@ -20,6 +21,7 @@ return {
     -- Enable `lukas-reineke/indent-blankline.nvim`
     -- See `:help ibl`
     main = 'ibl',
+    cond = not vim.g.vscode,
     opts = {
       indent = {
         char = { '│' },
@@ -28,6 +30,7 @@ return {
   },
   { -- Linting
     'mfussenegger/nvim-lint',
+    cond = not vim.g.vscode,
     event = { 'BufReadPre', 'BufNewFile' },
     config = function()
       local lint = require 'lint'

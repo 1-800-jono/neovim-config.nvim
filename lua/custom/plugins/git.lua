@@ -2,6 +2,7 @@ return {
   {
     'f-person/git-blame.nvim',
     event = 'BufRead',
+    cond = not vim.g.vscode,
     config = function()
       vim.cmd 'highlight default link gitblame SpecialComment'
       vim.g.gitblame_enabled = 1
@@ -19,6 +20,7 @@ return {
   },
   {
     'kdheepak/lazygit.nvim',
+    cond = not vim.g.vscode,
     cmd = {
       'LazyGit',
       'LazyGitConfig',
@@ -38,6 +40,7 @@ return {
   },
   {
     'lewis6991/gitsigns.nvim',
+    cond = not vim.g.vscode,
     opts = {
       on_attach = function(bufnr)
         local gitsigns = require 'gitsigns'

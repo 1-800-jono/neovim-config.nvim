@@ -6,6 +6,7 @@ return {
     dependencies = {
       'nvim-tree/nvim-web-devicons',
     },
+    cond = not vim.g.vscode,
     config = function()
       local HEIGHT_RATIO = 0.8 -- You can change this
       local WIDTH_RATIO = 0.8 -- You can change this too
@@ -53,6 +54,7 @@ return {
       'lewis6991/gitsigns.nvim', -- OPTIONAL: for git status
       'nvim-tree/nvim-web-devicons', -- OPTIONAL: for file icons
     },
+    cond = not vim.g.vscode,
     init = function()
       vim.g.barbar_auto_setup = false
     end,
