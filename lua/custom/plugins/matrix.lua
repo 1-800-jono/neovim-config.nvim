@@ -2,8 +2,13 @@
 -- seconds. Self-contained (no plugin): a non-focusable float on top of
 -- whatever's underneath, so it never touches real buffer content and never
 -- steals input.
-local function matrix_rain(duration_ms)
-  duration_ms = duration_ms or 2500
+local function matrix_rain(opts)
+  opts = opts or {}
+  local persist = opts.persist or false
+  -- Persist mode closes on the next keypress; the duration is just a safety
+  -- net in case you walk away, so give it a couple of minutes instead of
+  -- the default few-second flourish.
+  local duration_ms = opts.duration_ms or (persist and 120000 or 2500)
 
   local width = vim.o.columns
   local height = vim.o.lines - vim.o.cmdheight - 2
@@ -84,6 +89,7 @@ local function matrix_rain(duration_ms)
   local elapsed = 0
   local timer = (vim.uv or vim.loop).new_timer()
   local closed = false
+  local on_key_ns
   local function close()
     if closed then
       return
@@ -91,9 +97,20 @@ local function matrix_rain(duration_ms)
     closed = true
     timer:stop()
     timer:close()
+    if on_key_ns then
+      vim.on_key(nil, on_key_ns)
+    end
     if vim.api.nvim_win_is_valid(win) then
       vim.api.nvim_win_close(win, true)
     end
+  end
+
+  if persist then
+    -- vim.on_key sees every keystroke without intercepting it, so the
+    -- underlying window still gets the keypress normally.
+    on_key_ns = vim.on_key(function()
+      close()
+    end)
   end
 
   timer:start(
@@ -113,9 +130,9 @@ local function matrix_rain(duration_ms)
   )
 end
 
-vim.api.nvim_create_user_command('MatrixRain', function()
-  matrix_rain()
-end, { desc = 'Play the matrix rain overlay' })
+vim.api.nvim_create_user_command('MatrixRain', function(cmd_opts)
+  matrix_rain { persist = cmd_opts.bang }
+end, { bang = true, desc = 'Play the matrix rain overlay (! to keep it up until a keypress)' })
 
 -- On startup: open a terminal tab when launched on a directory (e.g. `nvim .`),
 -- then play the matrix rain overlay on top of it either way.
