@@ -240,13 +240,16 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
--- Open a terminal in a new tab when starting nvim with no file arguments
+-- Open a terminal in a new tab when starting nvim on a directory (e.g. `nvim .`)
 vim.api.nvim_create_autocmd('VimEnter', {
-  desc = 'Open a terminal in a new tab when launched with no file args',
+  desc = 'Open a terminal in a new tab when launched on a directory',
   group = vim.api.nvim_create_augroup('custom-startup-term', { clear = true }),
   callback = function()
-    if vim.fn.argc() == 0 then
-      vim.cmd.tab 'term'
+    if vim.fn.argc() == 1 and vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
+      local dir_buf = vim.api.nvim_get_current_buf()
+      vim.cmd 'tab term'
+      vim.cmd '1tabclose'
+      vim.cmd('bwipeout ' .. dir_buf)
     end
   end,
 })
