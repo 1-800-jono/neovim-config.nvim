@@ -9,6 +9,7 @@
 return {
   -- NOTE: Yes, you can install new plugins here!
   'mfussenegger/nvim-dap',
+  enabled = false,
   -- NOTE: And you can specify dependencies as well
   cond = not vim.g.vscode,
   dependencies = {
