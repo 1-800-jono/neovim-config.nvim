@@ -175,6 +175,19 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- Let `gf` resolve extensionless/index-style JS & TS imports
+--  e.g. `import Foo from './Foo'` -> ./Foo.tsx, ./Foo/index.tsx, etc.
+--  See `:help suffixesadd` and `:help 'path'`
+vim.api.nvim_create_autocmd('FileType', {
+  desc = 'Configure gf for JS/TS imports',
+  group = vim.api.nvim_create_augroup('custom-js-gf', { clear = true }),
+  pattern = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+  callback = function()
+    vim.opt_local.suffixesadd = { '.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx', '.d.ts', '.json', '/index.js', '/index.jsx', '/index.ts', '/index.tsx' }
+    vim.opt_local.path:append { '.', '**' }
+  end,
+})
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -591,6 +604,9 @@ require('lazy').setup({
         --
         -- But for many setups, the LSP (`tsserver`) will work just fine
         -- tsserver = {},
+        --
+        -- Using vtsls, which wraps the same TS/JS language service VS Code uses.
+        vtsls = {},
         --
 
         -- Requires the `ruby-lsp` gem in the project's Gemfile for full functionality,
